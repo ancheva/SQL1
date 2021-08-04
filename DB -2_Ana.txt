@@ -1,0 +1,134 @@
+1.
+select month (RequestDate) as nm,count(RequestDate)
+from vacations v
+group by month (RequestDate);
+
+
+2.Намерете кога за последно е подадена молба за отпуск през 2010-та
+
+select*
+from vacations v
+where (RequestDate between '2010-01-01' and '2010-12-31')
+order by RequestDate desc 
+limit 1;
+
+select max(RequestDate)
+from vacations v
+where (RequestDate between '2014-01-01' and '2014-12-31');
+
+
+3. Изведете две колони - година и дата на която е подаден първия отпуск за годината
+
+select year (RequestDate) ,min(RequestDate) as First
+from vacations v
+group by year (RequestDate)
+order by year (RequestDate);
+
+-- 4. Print the names of the departments and the number of employees in each of them
+
+select d2.Name,count(distinct e.Name) as numemp
+from employees e 
+left join departments d2 on e.DepartmentId =d2.Id 
+where e.EndDate  is null
+group by e.DepartmentId;
+
+
+-- 5. Print the names of the departments with more than 2 employees
+
+select d2.Name,count(distinct e.Name) as numemp
+from employees e 
+left join departments d2 on e.DepartmentId =d2.Id 
+where e.EndDate  is null
+group by e.DepartmentId
+having count(distinct e.Name)>2 ;
+
+
+
+-- 6. Print the total amount of salaries given to employees for each department
+
+select DepartmentId ,sum(Salary) 
+from employees e 
+where EndDate is null
+group by DepartmentId;
+
+
+-- 7. Print the number of employees that have at least one vacation request in 2012
+
+select EmployeeId ,count(EmployeeId)
+from vacations v2
+where (RequestDate between '2012-01-01' and '2012-12-31')
+group by EmployeeId;
+having count(EmployeeId)>1;
+
+
+-- 8. Print the names of all employees that have a first name starting with the letter 'M' and last name starting with the letter 'P' 
+
+select *
+from employees e
+where Name like 'M%'and Name like '% P%';
+
+
+-- 9. Print the names of the employees that have a Microsoft certificate
+
+select e.Name ,e.Id, e.EndDate,ec.EmployeeId, ec.CertificateId,c2.Name 
+from employees e 
+left join employee_certificates ec  on ec.EmployeeId =e.Id
+left join certificates c2 on ec.CertificateId =c2.Id 
+where ec.CertificateId  in (7,8)
+and e.EndDate is null 
+order by e.id;
+
+-- 10. Print the names of all job titles in the company along with the number of job positions currently opened.
+
+select t.*,jp.TitleId ,jp.Description 
+from titles t
+left join job_positions jp on t.Id =jp.TitleId ;
+
+
+
+-- 11. Print the number of vacation requests older than two year from the current date
+
+select count(RequestDate) 
+from  vacations v 
+where RequestDate < adddate(curdate(), INTERVAL -2 YEAR);
+select *
+from  vacations v 
+where RequestDate < adddate(curdate(), INTERVAL -2 YEAR);
+
+
+-- 12. Print the number of vacations that have been for more than 10 days
+
+select * ,DATEDIFF (ToDate ,FromDate)
+from  vacations v2
+where DATEDIFF (ToDate ,FromDate) >10
+and Status ='APPROVED';
+
+
+-- 13. Print all departments without employees
+
+select d2.Name ,count(distinct e2.Name) as staff
+from departments d2 
+left join  employees e2 on d2.Id=e2.DepartmentId 
+where e2.EndDate is null
+group by d2.Name
+having count(distinct e2.Name)=0;
+
+-- 14*. select all employees that have more skills than certificates
+
+
+select e2.Name,count(distinct es.SkillId),count(distinct ec.CertificateId),
+if (count(distinct es.SkillId)>count(distinct ec.CertificateId),'yes','no') as result
+from employees e2 
+left join employee_skills es on es.EmployeeId =e2.Id 
+left join employee_certificates ec on e2.Id =ec.EmployeeId 
+where e2.EndDate is null
+group by e2.Name;
+
+
+
+
+
+
+
+
+
